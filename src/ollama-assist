@@ -1,0 +1,72 @@
+#!/bin/bash
+
+function clear_and_exit() {
+    clear
+    exit 0
+}
+
+function help() {
+    echo "Usage: ollama-assist [options]
+
+Options:
+    -h, --help       Show this help message and exit
+    --version        Show version information and exit
+    list             List available models
+    init             Config default model
+    run              Run the argument model"
+    exit 0
+}
+
+function version() {
+    echo "ollama-assist version 0.1.0"
+    exit 0
+}
+
+function list() {
+    bash -c "ollama list"
+}
+
+function init() {
+    if [ "$1" ]; then
+        choice="$1"
+        echo "Initializing the default model..."
+        bash -c "echo '$choice' >> ~/.ollama-assist/models_history"
+        exit 0
+    else
+        echo "fatal: missing model name"
+        exit 1
+    fi
+}
+
+function run() {
+    choice="$1"
+    bash -c "clear && ollama run $choice"
+    exit 0
+}
+
+trap clear_and_exit SIGINT
+
+if [ "$1" ]; then
+    case $1 in
+        help|-h|--help) help ;;
+        --version) version ;;
+        list) list ;;
+        init) init "$2" ;;
+        run) run "$2" ;;
+        *) echo "fatal: unknown option '$1'"
+        exit 1 ;;
+    esac
+else
+  if [ ! -f ~/.ollama-assist/models_history ]; then
+    echo "Please run 'ollama-assist init <model>' to initialize the default model."
+    bash -c 'touch ~/.ollama-assist/models_history'
+    help
+  else
+    if [ "$(cat ~/.ollama-assist/models_history | wc -l)" -eq 0 ]; then
+        echo "Please run 'ai init <model>' to initialize the default model."
+        help
+    else
+        run "$(tail -n 1 ~/.ollama-assist/models_history)"
+    fi
+    fi
+fi
