@@ -8,6 +8,7 @@ function help() {
 function uninstall() {
     echo "Uninstalling Ollama Assist..."
     sudo rm -r /opt/ollama-assist
+    sudo rm -r ~/.ollama-assist/
     sudo sed -i '/ollama-assist/d' ~/.bashrc
     echo "Ollama Assist has been uninstalled successfully"
     exit 0

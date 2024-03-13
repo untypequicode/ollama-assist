@@ -63,7 +63,7 @@ else
     help
   else
     if [ "$(cat ~/.ollama-assist/models_history | wc -l)" -eq 0 ]; then
-        echo "Please run 'ai init <model>' to initialize the default model."
+        echo "Please run 'ollama-assist init <model>' to initialize the default model."
         help
     else
         run "$(tail -n 1 ~/.ollama-assist/models_history)"
