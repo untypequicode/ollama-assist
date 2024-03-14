@@ -1,0 +1,5 @@
+.obsidian/*
+.idea/*
+.vscode/*
+.trash/*
+**/__pycache__/*
