@@ -5,7 +5,11 @@
 ### Linux
 
 ```
-curl -fsSL https://ollama.com/install.sh | sh
-
 ./install.sh
+```
+
+To install Ollama Assist with ollama, run the following command:
+
+```
+./install.sh ollama
 ```

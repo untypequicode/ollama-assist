@@ -9,7 +9,7 @@ function install() {
    echo "Installing Ollama Assist..."
    if [ "$1" ]; then
        case $1 in
-           -o) bash -c "curl -fsSL https://ollama.com/install.sh | sh" ;;
+           ollama) bash -c "curl -fsSL https://ollama.com/install.sh | sh" ;;
            *) echo "fatal: unknown option '$1'"
            exit 1 ;;
        esac
@@ -30,7 +30,7 @@ function install() {
 if [ "$1" ]; then
     case $1 in
         help|-h|--help) help ;;
-        -o) install -o ;;
+        ollama) install ollama ;;
         *) echo "fatal: unknown option '$1'"
         exit 1 ;;
     esac
