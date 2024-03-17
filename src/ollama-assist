@@ -169,7 +169,7 @@ function add_shortcut_custom() {
 Version=1.0
 Name=Ollama Assist - $model_name
 Comment=AI-powered assistants for Linux
-Exec=/opt/ollama-assist/bin/ollama-assist -c -r $model_name
+Exec=gnome-terminal -e \"bash -c \\\"/opt/ollama-assist/bin/ollama-assist -c -r $model_name; exec bash\\\"\"
 Terminal=true
 Type=Application
 Icon=ollamaassist
