@@ -6,19 +6,30 @@ function clear_and_exit() {
 }
 
 function help() {
-    echo "Usage: ollama-assist [options]
-
+  echo "Usage: ollama-assist [options]
 Options:
-    -h, --help       Show this help message and exit
-    --version        Show version information and exit
-    list             List available models
-    init             Config default model
-    run              Run the argument model"
+    -h, --help                      Show this help message and exit
+    -v, --version                   Show version information and exit
+    -l, --list                      List available models
+    -i, --init                      Config default model
+    -r, --run                       Run the argument model
+    -c, --custom                    Manage custom models:
+        -h, --help                  Show this help message and exit
+              -l, --list            List available custom models
+              -a, --add             Add a new custom model
+              -rm, --remove         Remove a custom model
+              -e, --edit            Edit a custom model
+              -rn, --rename         Rename a custom model
+              -r, --run             Run a custom model with options:
+                  -c, --clipboard   Copy the response to clipboard
+                  -t, --terminal    Display the response in the terminal
+              -sa, --shortcutadd    Add a shortcut for a custom model
+              -sr, --shortcutremove Remove a shortcut for a custom model"
     exit 0
 }
 
 function version() {
-    echo "ollama-assist version 0.1.0"
+    echo "ollama-assist version 0.2.0"
     exit 0
 }
 
@@ -44,15 +55,326 @@ function run() {
     exit 0
 }
 
+function add_custom() {
+  # Demander les informations pour le nouveau modèle
+  read -p "Enter the model name (no spaces): " model_name
+
+  # Vérifier qu'il n'y a pas d'espace dans le nom du nouveau modèle
+  if [[ $model_name =~ " " ]]; then
+    echo "Error: The model name cannot contain spaces."
+    exit 1
+  fi
+
+  # Vérifier si un fichier JSON existe déjà et demander à l'utilisateur s'il souhaite écraser le fichier existant ou changer le nom
+  while true; do
+    if [[ -f ~/.ollama-assist/$model_name.json ]]; then
+      read -p "A file named ~/.ollama-assist/$model_name.json already exists. Do you want to delete it and replace it with the new content? (y/n): " choice
+      if [ "$choice" == "y" ]; then
+        rm ~/.ollama-assist/$model_name.json
+        break
+      elif [ "$choice" == "n" ]; then
+        read -p "Do you want to change the name? (y/n): " change_name
+        if [ "$change_name" == "y" ]; then
+          read -p "Enter the new name (no spaces): " model_name
+        else
+          echo "Skipping ~/.ollama-assist/$model_name.json"
+          break
+        fi
+      else
+        echo "Invalid choice. Please enter y or n."
+      fi
+    else
+      break
+    fi
+  done
+
+  read -p "Enter the model used: " model
+  read -p "Enter the user's request: " prompt
+  text=""
+  while [ "$text" != "y" ] && [ "$text" != "n" ]; do
+      read -p "Does the model require text (y/n)? " text
+  done
+  content=""
+  while [ "$content" != "y" ] && [ "$content" != "n" ]; do
+      read -p "Does the model require content (y/n)? " content
+  done
+
+  # Convertir les entrées y/n en true/false pour les utiliser dans le fichier JSON
+  text=$(echo "$text" | tr '[:upper:]' '[:lower:]')
+  text=$(echo "$text" | grep -iq "^y" && echo "true" || echo "false")
+
+  content=$(echo "$content" | tr '[:upper:]' '[:lower:]')
+  content=$(echo "$content" | grep -iq "^y" && echo "true" || echo "false")
+
+  # Créer le fichier JSON avec les informations du nouveau modèle
+  echo "{\"name\": \"$model_name\", \"model\": \"$model\", \"prompt\": \"$prompt\", \"text\": $text, \"content\": $content}" > ~/.ollama-assist/$model_name.json
+
+  echo "The JSON file has been created successfully: ~/.ollama-assist/$model_name.json"
+
+  # Vérifier si le modèle a déjà été ajouté et ajouter le nouveau modèle à la liste dans models_custom
+  if [[ $(cat ~/.ollama-assist/models_custom) =~ $model_name ]]; then
+    echo "Error: The model $model_name already exists in the list."
+  else
+    echo "{\"name\": \"$model_name\"}" >> ~/.ollama-assist/models_custom
+    echo "The model $model_name has been added to the list."
+  fi
+}
+
+function add_shortcut_custom() {
+  # Demander les informations pour le nouveau raccourci
+  read -p "Enter the model name (no spaces): " model_name
+
+  # Vérifier qu'il n'y a pas d'espace dans le nom du nouveau raccourci
+  if [[ $model_name =~ " " ]]; then
+    echo "Error: The model name cannot contain spaces."
+    exit 1
+  fi
+
+  desktop_file_name="ollama-assist-$model_name.desktop"
+
+  # Vérifier si le modèle demandé existe dans models_custom
+  if [[ $(cat ~/.ollama-assist/models_custom) =~ $model_name ]]; then
+    # Vérifier si le fichier de raccourci existe déjà et demander à l'utilisateur s'il souhaite écraser le fichier existant ou changer le nom
+    while true; do
+      if [[ -f ~/.local/share/applications/$desktop_file_name ]]; then
+        read -p "A file named ~/.local/share/applications/$desktop_file_name already exists. Do you want to delete it and replace it with the new content? (y/n): " choice
+        if [ "$choice" == "y" ]; then
+          rm ~/.local/share/applications/$desktop_file_name
+          break
+        elif [ "$choice" == "n" ]; then
+          read -p "Do you want to change the name? (y/n): " change_name
+          if [ "$change_name" == "y" ]; then
+            read -p "Enter the new name (no spaces): " model_name
+            if [[ $model_name =~ " " ]]; then
+                echo "Error: The model name cannot contain spaces."
+                exit 1
+            fi
+            desktop_file_name="ollama-assist-$model_name.desktop"
+          else
+            echo "Skipping ~/.local/share/applications/$desktop_file_name"
+            break
+          fi
+        else
+          echo "Invalid choice. Please enter y or n."
+        fi
+      else
+        break
+      fi
+    done
+
+    # Vérifier si le fichier JSON du modèle existe
+    if [[ -f ~/.ollama-assist/$model_name.json ]]; then
+      # Créer le fichier de raccourci avec les informations du nouveau raccourci
+      echo "[Desktop Entry]
+Version=1.0
+Name=Ollama Assist - $model_name
+Comment=AI-powered assistants for Linux
+Exec=/opt/ollama-assist/bin/ollama-assist -c -r $model_name
+Terminal=true
+Type=Application
+Icon=ollamaassist
+Categories=Utility;
+StartupNotify=true" > ~/.local/share/applications/$desktop_file_name
+
+      echo "The desktop file has been created successfully: ~/.local/share/applications/$desktop_file_name"
+    else
+      echo "Error: The model $model_name does not exist."
+    fi
+  else
+    echo "Error: The model $model_name does not exist in the list."
+  fi
+}
+
+function remove_shortcut_custom() {
+  # Demander le nom du raccourci à supprimer
+  # Demander les informations pour le nouveau raccourci
+    read -p "Enter the model name (no spaces): " model_name
+
+    desktop_file_name="ollama-assist-$model_name.desktop"
+
+  # Vérifier si le fichier de raccourci existe
+  if [[ -f ~/.local/share/applications/$desktop_file_name ]]; then
+    rm ~/.local/share/applications/$desktop_file_name
+    echo "The desktop file $desktop_file_name has been deleted."
+  else
+    echo "Error: The desktop file $desktop_file_name does not exist."
+  fi
+}
+
+function remove_custom() {
+  # Demander le nom du modèle à supprimer
+  read -p "Enter the model name to delete: " model_name
+
+  # Vérifier si le fichier JSON du modèle existe
+  if [[ -f ~/.ollama-assist/$model_name.json ]]; then
+    rm ~/.ollama-assist/$model_name.json
+    # Supprimer le modèle de la liste dans "models_custom"
+    sed -i "/\"$model_name\"/d" ~/.ollama-assist/models_custom
+    echo "The model $model_name has been deleted."
+  else
+    echo "Error: The model $model_name does not exist."
+  fi
+}
+
+function edit_custom() {
+  # Demander le nom du modèle à modifier
+  read -p "Enter the model name to edit: " model_name
+
+  # Vérifier si le fichier JSON du modèle existe
+  if [[ -f ~/.ollama-assist/$model_name.json ]]; then
+    # Demander les nouvelles informations pour le modèle
+    read -p "Enter the new model used: " model
+    read -p "Enter the new user's request: " prompt
+    text=""
+    while [ "$text" != "y" ] && [ "$text" != "n" ]; do
+        read -p "Does the model require text (y/n)? " text
+    done
+    content=""
+    while [ "$content" != "y" ] && [ "$content" != "n" ]; do
+        read -p "Does the model require content (y/n)? " content
+    done
+
+    # Convertir les entrées y/n en true/false pour les utiliser dans le fichier JSON
+    text=$(echo "$text" | tr '[:upper:]' '[:lower:]')
+    text=$(echo "$text" | grep -iq "^y" && echo "true" || echo "false")
+
+    content=$(echo "$content" | tr '[:upper:]' '[:lower:]')
+    content=$(echo "$content" | grep -iq "^y" && echo "true" || echo "false")
+
+    # Mettre à jour le fichier JSON avec les nouvelles informations
+    cat ~/.ollama-assist/$model_name.json | jq --arg name "$model_name" --arg model "$model" --arg prompt "$prompt" --arg text "$text" --arg content "$content" '.name = $name | .model = $model | .prompt = $prompt | .text = $text | .content = $content' > ~/.ollama-assist/tmp_$model_name.json
+    mv ~/.ollama-assist/tmp_$model_name.json ~/.ollama-assist/$model_name.json
+
+    echo "The model $model_name has been edited."
+  else
+    echo "Error: The model $model_name does not exist."
+  fi
+}
+
+function rename_custom() {
+  # Demander le nom du modèle à renommer
+  read -p "Enter the model name to rename: " model_name_old
+
+  # Vérifier si le fichier JSON du modèle existe
+  if [[ -f ~/.ollama-assist/$model_name_old.json ]]; then
+    # Demander le nouveau nom du modèle
+    read -p "Enter the new model name: " model_name_new
+
+    # Vérifier qu'il n'y a pas d'espace dans le nouveau nom du modèle
+    if [[ $model_name_new =~ " " ]]; then
+      echo "Error: The new model name cannot contain spaces."
+    else
+      # Renommer le fichier JSON du modèle
+      mv ~/.ollama-assist/$model_name_old.json ~/.ollama-assist/$model_name_new.json
+      # Mettre à jour le nom du modèle dans "models_custom"
+      sed -i "s/$model_name_old/$model_name_new/g" ~/.ollama-assist/models_custom
+
+      echo "The model $model_name_old has been renamed to $model_name_new."
+    fi
+  else
+    echo "Error: The model $model_name_old does not exist."
+  fi
+}
+
+function run_custom() {
+  model_name="$1"
+  output="$2"
+  if [[ -f ~/.ollama-assist/$model_name.json ]]; then
+    model_used=$(jq -r '.model' ~/.ollama-assist/$model_name.json)
+    prompt=$(jq -r '.prompt' ~/.ollama-assist/$model_name.json)
+    text=$(jq -r '.text' ~/.ollama-assist/$model_name.json)
+    content=$(jq -r '.content' ~/.ollama-assist/$model_name.json)
+
+    if [ "$text" == "true" ]; then
+      read -p "Enter the text: " user_text
+    else
+      user_text="$(xclip -o)"
+    fi
+
+    # Vérifier si le modèle est dans "models_custom"
+    if [[ $(cat ~/.ollama-assist/models_custom) =~ $model_name ]]; then
+      response=$(ollama run $model_used "$prompt" "$user_text" "$user_content")
+      if [ $output ]; then
+        case $output in
+            -c|--clipboard) echo "$response" | xclip -selection clipboard && echo "Response copied to clipboard.";;
+            -t|--terminal) echo "$response" ;;
+            *) echo "Invalid output option. Use -c for clipboard or -t for terminal."
+            exit 1 ;;
+        esac
+      else
+          echo "$response" | xclip -selection clipboard
+          echo "Response copied to clipboard."
+      fi
+    else
+      echo "Error: The model $model_name does not exist."
+    fi
+  else
+    echo "Error: The model $model_name does not exist."
+  fi
+}
+
+function list_custom() {
+  # Vérifier si le fichier "models_custom" existe et afficher un message si le fichier est vide
+  if [ -f ~/.ollama-assist/models_custom ]; then
+    if [[ $(cat ~/.ollama-assist/models_custom) ]]; then
+      bash -c 'cat ~/.ollama-assist/models_custom'
+    else
+      echo "No custom models available."
+    fi
+  else
+    # Créer le fichier "models_custom" s'il n'existe pas
+    bash -c 'touch ~/.ollama-assist/models_custom'
+    echo "No custom models available."
+  fi
+}
+
+function help_custom() {
+  echo "Usage: ollama-assist custom [options]
+  Options:
+      -h, --help            Show this help message and exit
+      -l, --list            List available custom models
+      -a, --add             Add a new custom model
+      -rm, --remove         Remove a custom model
+      -e, --edit            Edit a custom model
+      -rn, --rename         Rename a custom model
+      -r, --run             Run a custom model with options:
+          -c, --clipboard   Copy the response to clipboard
+          -t, --terminal    Display the response in the terminal
+      -sa, --shortcutadd    Add a shortcut for a custom model
+      -sr, --shortcutremove Remove a shortcut for a custom model"
+  exit 0
+}
+
+function custom() {
+  if [ "$1" ]; then
+      case $1 in
+          help|-h|--help) help_custom ;;
+          -l|--list) list_custom ;;
+          -a|--add) add_custom;;
+          -rm|--remove) remove_custom ;;
+          -e|--edit) edit_custom ;;
+          -rn|--rename) rename_custom ;;
+          -r|--run) run_custom "$2" "$3" ;;
+          -sa|--shortcutadd) add_shortcut_custom ;;
+          -sr|--shortcutremove) remove_shortcut_custom ;;
+          *) echo "fatal: unknown option '$1'"
+          exit 1 ;;
+      esac
+  else
+    help_custom
+  fi
+}
+
 trap clear_and_exit SIGINT
 
 if [ "$1" ]; then
     case $1 in
         help|-h|--help) help ;;
-        --version) version ;;
-        list) list ;;
-        init) init "$2" ;;
-        run) run "$2" ;;
+        -v|--version) version ;;
+        -l|--list) list ;;
+        -i|--init) init "$2" ;;
+        -r|--run) run "$2" ;;
+        -c|--custom) custom "$2" "$3" "$4";;
         *) echo "fatal: unknown option '$1'"
         exit 1 ;;
     esac

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Ollama Assist
+Comment=AI-powered assistants for Linux
+Exec=/opt/ollama-assist/bin/ollama-assist
+Terminal=true
+Type=Application
+Icon=ollamaassist
+Categories=Utility;
+StartupNotify=true
