@@ -341,6 +341,7 @@ function help_custom() {
           -c, --clipboard   Copy the response to clipboard
           -t, --terminal    Display the response in the terminal
       -sa, --shortcutadd    Add a shortcut for a custom model
+          -i, --icon        Add a custom icon for a shortcut
       -sr, --shortcutremove Remove a shortcut for a custom model"
   exit 0
 }
@@ -355,7 +356,7 @@ function custom() {
           -e|--edit) edit_custom ;;
           -rn|--rename) rename_custom ;;
           -r|--run) run_custom "$2" "$3" ;;
-          -sa|--shortcutadd) add_shortcut_custom ;;
+          -sa|--shortcutadd) add_shortcut_custom "$2" ;;
           -sr|--shortcutremove) remove_shortcut_custom ;;
           *) echo "fatal: unknown option '$1'"
           exit 1 ;;

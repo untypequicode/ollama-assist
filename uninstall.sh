@@ -30,19 +30,24 @@ function uninstall() {
     fi
 
     # Supprimer les fichiers de raccourci de l'utilisateur
-    if [ -f /usr/share/icons/ollamaassist.svg ]; then
-        bash -c 'sudo rm /usr/share/icons/ollamaassist.svg'
-    fi
-
-    # Supprimer tous les fichiers .desktop pour les modèles
-      if [ -d ~/.local/share/applications ]; then
-          for file in ~/.local/share/applications/*.desktop; do
-              if [[ $file =~ "ollama-assist" ]]; then
+    if [ -d /usr/share/icons ]; then
+          for file in /usr/share/icons/*.svg; do
+              if [[ $file =~ "ollamaassist" ]]; then
                 echo $file
                 sudo rm $file
               fi
           done
       fi
+
+    # Supprimer tous les fichiers .desktop pour les modèles
+    if [ -d ~/.local/share/applications ]; then
+        for file in ~/.local/share/applications/*.desktop; do
+            if [[ $file =~ "ollama-assist" ]]; then
+              echo $file
+              sudo rm $file
+            fi
+        done
+    fi
 
     echo "Ollama Assist has been uninstalled successfully"
     exit 0
