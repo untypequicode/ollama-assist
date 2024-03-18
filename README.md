@@ -1,5 +1,5 @@
 <div align="center">
-  <img alt="ollama" height="200px" src="src/ollamaassist.svg">
+  <img alt="ollama" height="200px" src="src/ollama-assist.svg">
 </div>
 
 # Ollama Assist

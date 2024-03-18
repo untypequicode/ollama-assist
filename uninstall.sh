@@ -32,7 +32,7 @@ function uninstall() {
     # Supprimer les fichiers de raccourci de l'utilisateur
     if [ -d /usr/share/icons ]; then
           for file in /usr/share/icons/*.svg; do
-              if [[ $file =~ "ollamaassist" ]]; then
+              if [[ $file =~ "ollama-assist" ]]; then
                 echo $file
                 sudo rm $file
               fi

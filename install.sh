@@ -57,15 +57,15 @@ function install() {
    if [ "$choice" == "y" ]; then
        bash -c 'echo "Installing Ollama Assist shortcut..."'
        # Supprimer les anciens fichiers de raccourci si nécessaire
-       if [ -f ~/.local/share/icons/ollamaassist.svg ]; then
-           bash -c 'sudo rm /usr/share/icons/ollamaassist.svg'
+       if [ -f ~/.local/share/icons/ollama-assist.svg ]; then
+           bash -c 'sudo rm /usr/share/icons/ollama-assist.svg'
        fi
        if [ -f ~/Desktop/ollama-assist.desktop ]; then
            bash -c 'sudo rm ~/.local/share/applications/ollama-assist.desktop'
        fi
        # Copier le logo et le fichier de raccourci
        bash -c 'echo "Copying the Ollama Assist logo..."'
-       sudo cp src/ollamaassist.svg /usr/share/icons/
+       sudo cp src/ollama-assist.svg /usr/share/icons/
        bash -c 'echo "Copying the Ollama Assist desktop file..."'
        cp src/ollama-assist.desktop ~/.local/share/applications/
        echo "Ollama Assist shortcut has been installed successfully."

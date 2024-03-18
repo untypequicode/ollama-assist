@@ -164,15 +164,15 @@ function add_shortcut_custom() {
 
     # Vérifier si le fichier JSON du modèle existe
     if [[ -f ~/.ollama-assist/$model_name.json ]]; then
-      name_logo="ollamaassist"
+      name_logo="ollama-assist"
       if [ "$1" ]; then
         case $1 in
           -i|--icon)
-            if [ -f ~/.local/share/icons/ollamaassist-$model_name.svg ]; then
-              sudo rm /usr/share/icons/ollamaassist-$model_name.svg
+            if [ -f ~/.local/share/icons/ollama-assist-$model_name.svg ]; then
+              sudo rm /usr/share/icons/ollama-assist-$model_name.svg
             fi
             bash -c 'echo "Copying the Ollama Assist logo..."'
-            sudo cp src/ollamaassist.svg /usr/share/icons/ollamaassist-$model_name.svg
+            sudo cp src/ollama-assist.svg /usr/share/icons/ollama-assist-$model_name.svg
             valid_hex=false
             while [[ $valid_hex == false ]]; do
               read -p "Top color (hexadecimal, e.g. #ff0000) [Optional]: " top_color
@@ -207,15 +207,15 @@ function add_shortcut_custom() {
               fi
             done
             if [[ $top_color ]]; then
-              sudo sed -i "s/#fdcd00/$top_color/g" /usr/share/icons/ollamaassist-$model_name.svg
+              sudo sed -i "s/#fdcd00/$top_color/g" /usr/share/icons/ollama-assist-$model_name.svg
             fi
             if [[ $bottom_color ]]; then
-              sudo sed -i "s/#ff0107/$bottom_color/g" /usr/share/icons/ollamaassist-$model_name.svg
+              sudo sed -i "s/#ff0107/$bottom_color/g" /usr/share/icons/ollama-assist-$model_name.svg
             fi
             if [[ $background_color ]]; then
-              sudo sed -i "s/#ffffff/$background_color/g" /usr/share/icons/ollamaassist-$model_name.svg
+              sudo sed -i "s/#ffffff/$background_color/g" /usr/share/icons/ollama-assist-$model_name.svg
             fi
-            name_logo="ollamaassist-$model_name"
+            name_logo="ollama-assist-$model_name"
             ;;
           *) echo "fatal: unknown option '$1'"
           exit 1 ;;

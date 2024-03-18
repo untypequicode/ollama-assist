@@ -4,6 +4,6 @@ Comment=AI-powered assistants for Linux
 Exec=/opt/ollama-assist/bin/ollama-assist
 Terminal=true
 Type=Application
-Icon=ollamaassist
+Icon=ollama-assist
 Categories=Utility;
 StartupNotify=true
