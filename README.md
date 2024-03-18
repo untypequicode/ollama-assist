@@ -53,6 +53,7 @@ ollama-assist
         -c, --clipboard         Copy the response to clipboard
         -t, --terminal          Display the response in the terminal
     -sa, --shortcutadd          Add a shortcut for a custom model
+        -i, --icon              Add a custom icon for a shortcut
     -sr, --shortcutremove       Remove a shortcut for a custom model
 ```
 

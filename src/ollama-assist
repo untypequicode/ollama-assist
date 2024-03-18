@@ -24,12 +24,13 @@ Options:
                   -c, --clipboard   Copy the response to clipboard
                   -t, --terminal    Display the response in the terminal
               -sa, --shortcutadd    Add a shortcut for a custom model
+                  -i, --icon        Add a custom icon for a shortcut
               -sr, --shortcutremove Remove a shortcut for a custom model"
     exit 0
 }
 
 function version() {
-    echo "ollama-assist version 0.2.0"
+    echo "ollama-assist version 0.2.2"
     exit 0
 }
 
