@@ -164,15 +164,15 @@ function add_shortcut_custom() {
 
     # Vérifier si le fichier JSON du modèle existe
     if [[ -f ~/.ollama-assist/$model_name.json ]]; then
-      name_logo="ollamaassit"
+      name_logo="ollamaassist"
       if [ "$1" ]; then
         case $1 in
           -i|--icon)
-            if [ -f ~/.local/share/icons/ollamaassit-$model_name.svg ]; then
-              sudo rm /usr/share/icons/ollamaassit-$model_name.svg
+            if [ -f ~/.local/share/icons/ollamaassist-$model_name.svg ]; then
+              sudo rm /usr/share/icons/ollamaassist-$model_name.svg
             fi
             bash -c 'echo "Copying the Ollama Assist logo..."'
-            sudo cp src/ollamaassit.svg /usr/share/icons/ollamaassit-$model_name.svg
+            sudo cp src/ollamaassist.svg /usr/share/icons/ollamaassist-$model_name.svg
             valid_hex=false
             while [[ $valid_hex == false ]]; do
               read -p "Top color (hexadecimal, e.g. #ff0000): " top_color
@@ -191,8 +191,8 @@ function add_shortcut_custom() {
                 echo "Invalid hexadecimal color. Please enter a 6-digit hexadecimal color (e.g. #000000)."
               fi
             done
-            sudo sed -i "s/#fdcd00/$top_color/g" src/ollamaassit.svg /usr/share/icons/ollamaassit-$model_name.svg
-            sudo sed -i "s/#ff0107/$bottom_color/g" src/ollamaassit.svg /usr/share/icons/ollamaassit-$model_name.svg
+            sudo sed -i "s/#fdcd00/$top_color/g" /usr/share/icons/ollamaassist-$model_name.svg
+            sudo sed -i "s/#ff0107/$bottom_color/g" /usr/share/icons/ollamaassist-$model_name.svg
             name_logo="ollamaassist-$model_name"
             ;;
           *) echo "fatal: unknown option '$1'"
