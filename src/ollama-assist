@@ -57,7 +57,7 @@ function run() {
 
 function add_custom() {
   # Demander les informations pour le nouveau modèle
-  read -p "Enter the model name (no spaces): " model_name
+  ²read -p "Enter the model name (no spaces): " model_name
 
   # Vérifier qu'il n'y a pas d'espace dans le nom du nouveau modèle
   if [[ $model_name =~ " " ]]; then
@@ -164,6 +164,42 @@ function add_shortcut_custom() {
 
     # Vérifier si le fichier JSON du modèle existe
     if [[ -f ~/.ollama-assist/$model_name.json ]]; then
+      name_logo="ollamaassit"
+      if [ "$1" ]; then
+        case $1 in
+          -i|--icon)
+            if [ -f ~/.local/share/icons/ollamaassit-$model_name.svg ]; then
+              sudo rm /usr/share/icons/ollamaassit-$model_name.svg
+            fi
+            bash -c 'echo "Copying the Ollama Assist logo..."'
+            sudo cp src/ollamaassit.svg /usr/share/icons/ollamaassit-$model_name.svg
+            valid_hex=false
+            while [[ $valid_hex == false ]]; do
+              read -p "Top color (hexadecimal, e.g. #ff0000): " top_color
+              if [[ $top_color =~ ^#[0-9A-Fa-f]{6}$ ]]; then
+                valid_hex=true
+              else
+                echo "Invalid hexadecimal color. Please enter a 6-digit hexadecimal color (e.g. #ff0000)."
+              fi
+            done
+            valid_hex=false
+            while [[ $valid_hex == false ]]; do
+              read -p "Bottom color (hexadecimal, e.g. #000000): " bottom_color
+              if [[ $bottom_color =~ ^#[0-9A-Fa-f]{6}$ ]]; then
+                valid_hex=true
+              else
+                echo "Invalid hexadecimal color. Please enter a 6-digit hexadecimal color (e.g. #000000)."
+              fi
+            done
+            sudo sed -i "s/#fdcd00/$top_color/g" src/ollamaassit.svg /usr/share/icons/ollamaassit-$model_name.svg
+            sudo sed -i "s/#ff0107/$bottom_color/g" src/ollamaassit.svg /usr/share/icons/ollamaassit-$model_name.svg
+            name_logo="ollamaassist-$model_name"
+            ;;
+          *) echo "fatal: unknown option '$1'"
+          exit 1 ;;
+        esac
+      fi
+
       # Créer le fichier de raccourci avec les informations du nouveau raccourci
       echo "[Desktop Entry]
 Version=1.0
@@ -172,7 +208,7 @@ Comment=AI-powered assistants for Linux
 Exec=gnome-terminal -e \"bash -c \\\"/opt/ollama-assist/bin/ollama-assist -c -r $model_name; exec bash\\\"\"
 Terminal=true
 Type=Application
-Icon=ollamaassist
+Icon=$name_logo
 Categories=Utility;
 StartupNotify=true" > ~/.local/share/applications/$desktop_file_name
 
@@ -291,6 +327,8 @@ function run_custom() {
       user_text="$(xclip -o)"
     fi
 
+    user_content=content
+
     # Vérifier si le modèle est dans "models_custom"
     if [[ $(cat ~/.ollama-assist/models_custom) =~ $model_name ]]; then
       response=$(ollama run $model_used "$prompt" "$user_text" "$user_content")
@@ -358,7 +396,7 @@ function custom() {
           -r|--run) run_custom "$2" "$3" ;;
           -sa|--shortcutadd) add_shortcut_custom "$2" ;;
           -sr|--shortcutremove) remove_shortcut_custom ;;
-          *) echo "fatal: unknown option '$1'"
+          *) echo "fatal: unknown option '$2'"
           exit 1 ;;
       esac
   else
