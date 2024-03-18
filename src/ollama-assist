@@ -175,8 +175,10 @@ function add_shortcut_custom() {
             sudo cp src/ollamaassist.svg /usr/share/icons/ollamaassist-$model_name.svg
             valid_hex=false
             while [[ $valid_hex == false ]]; do
-              read -p "Top color (hexadecimal, e.g. #ff0000): " top_color
+              read -p "Top color (hexadecimal, e.g. #ff0000) [Optional]: " top_color
               if [[ $top_color =~ ^#[0-9A-Fa-f]{6}$ ]]; then
+                valid_hex=true
+              elif [[ $top_color == "" ]]; then
                 valid_hex=true
               else
                 echo "Invalid hexadecimal color. Please enter a 6-digit hexadecimal color (e.g. #ff0000)."
@@ -184,15 +186,35 @@ function add_shortcut_custom() {
             done
             valid_hex=false
             while [[ $valid_hex == false ]]; do
-              read -p "Bottom color (hexadecimal, e.g. #000000): " bottom_color
+              read -p "Bottom color (hexadecimal, e.g. #000000) [Optional]: " bottom_color
               if [[ $bottom_color =~ ^#[0-9A-Fa-f]{6}$ ]]; then
+                valid_hex=true
+              elif [[ $bottom_color == "" ]]; then
                 valid_hex=true
               else
                 echo "Invalid hexadecimal color. Please enter a 6-digit hexadecimal color (e.g. #000000)."
               fi
             done
-            sudo sed -i "s/#fdcd00/$top_color/g" /usr/share/icons/ollamaassist-$model_name.svg
-            sudo sed -i "s/#ff0107/$bottom_color/g" /usr/share/icons/ollamaassist-$model_name.svg
+            valid_hex=false
+            while [[ $valid_hex == false ]]; do
+              read -p "Background color (hexadecimal, e.g. #000000) [Optional]: " background_color
+              if [[ $background_color =~ ^#[0-9A-Fa-f]{6}$ ]]; then
+                valid_hex=true
+              elif [[ $background_color == "" ]]; then
+                valid_hex=true
+              else
+                echo "Invalid hexadecimal color. Please enter a 6-digit hexadecimal color (e.g. #000000)."
+              fi
+            done
+            if [[ $top_color ]]; then
+              sudo sed -i "s/#fdcd00/$top_color/g" /usr/share/icons/ollamaassist-$model_name.svg
+            fi
+            if [[ $bottom_color ]]; then
+              sudo sed -i "s/#ff0107/$bottom_color/g" /usr/share/icons/ollamaassist-$model_name.svg
+            fi
+            if [[ $background_color ]]; then
+              sudo sed -i "s/#ffffff/$background_color/g" /usr/share/icons/ollamaassist-$model_name.svg
+            fi
             name_logo="ollamaassist-$model_name"
             ;;
           *) echo "fatal: unknown option '$1'"
