@@ -1,3 +1,7 @@
+<div align="center">
+  <img alt="ollama" height="200px" src="src/ollamaassist.svg">
+</div>
+
 # Ollama Assist
 
 [Ollama](https://github.com/ollama/ollama) Assist: AI-powered assistants for Linux
