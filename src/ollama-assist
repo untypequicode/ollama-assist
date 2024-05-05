@@ -58,7 +58,7 @@ function run() {
 
 function add_custom() {
   # Demander les informations pour le nouveau modèle
-  ²read -p "Enter the model name (no spaces): " model_name
+  read -p "Enter the model name (no spaces): " model_name
 
   # Vérifier qu'il n'y a pas d'espace dans le nom du nouveau modèle
   if [[ $model_name =~ " " ]]; then
